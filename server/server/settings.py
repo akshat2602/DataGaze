@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "dj_rest_auth",
     "dj_rest_auth.registration",
     "drf_yasg",
+    "connectionAPI"
 ]
 
 
@@ -195,3 +196,5 @@ JAZZMIN_UI_TWEAKS = {
         "success": "btn-success",
     },
 }
+
+AUTH_USER_MODEL = 'connectionAPI.User'
