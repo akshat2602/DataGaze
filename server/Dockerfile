@@ -18,7 +18,8 @@ COPY . /src
 
 RUN chmod -R 777 /src
 
-CMD  python manage.py makemigrations \
+CMD  python manage.py makemigrations connectionAPI  \
+    && python manage.py makemigrations \
     && python manage.py migrate \
     && python manage.py shell < tools/create_superuser.py \
     && python manage.py runserver 0.0.0.0:8000

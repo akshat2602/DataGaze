@@ -40,8 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sites",
     "rest_framework",
-    "dj_rest_auth",
-    "dj_rest_auth.registration",
+    "djoser",
     "drf_yasg",
     "connectionAPI"
 ]
@@ -134,22 +133,34 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
+SIMPLE_JWT = {
+    "AUTH_HEADER_TYPES": ("Token",),
+}
+
+
 # Rest Framework Settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
-    )
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
 }
 
 
 # Swagger Settings
-SWAGGER_SETTINGS = {"SECURITY_DEFINITIONS": {"Bearer": {"type": "apiKey", "name": "Authorization", "in": "header"}}}
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
+}
 
 
-REST_USE_JWT = True
 
-JWT_AUTH_COOKIE = "access_token"
-JWT_AUTH_REFRESH_COOKIE = "refresh_token"
 
 JAZZMIN_SETTINGS = {
     # title of the window (Will default to current_admin_site.site_title if absent or None)
