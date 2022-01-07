@@ -38,15 +38,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django.contrib.sites",
     "rest_framework",
-    "dj_rest_auth",
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
-    "allauth.socialaccount.providers.google",
-    "dj_rest_auth.registration",
+    "djoser",
     "drf_yasg",
+    "connectionAPI"
 ]
 
 
@@ -138,28 +133,47 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-SWAGGER_SETTINGS = {"SECURITY_DEFINITIONS": {"Bearer": {"type": "apiKey", "name": "Authorization", "in": "header"}}}
+SIMPLE_JWT = {
+    "AUTH_HEADER_TYPES": ("Token",),
+}
 
-SITE_ID = 1
 
-REST_USE_JWT = True
+# Rest Framework Settings
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
 
-JWT_AUTH_COOKIE = "access_token"
-JWT_AUTH_REFRESH_COOKIE = "refresh_token"
+
+# Swagger Settings
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
+}
+
+
+
 
 JAZZMIN_SETTINGS = {
     # title of the window (Will default to current_admin_site.site_title if absent or None)
     "site_title": "Admin Panel",
     # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
-    "site_brand": "Analysis Platform",
-    "site_header": "Analysis",
+    "site_brand": "DataGaze",
+    "site_header": "DataGaze",
     # CSS classes that are applied to the logo above
     "site_logo_classes": "img-circle",
     # Relative path to a favicon for your site, will default to site_logo if absent (ideally 32x32 px)
     "site_icon": None,
     # "related_modal_active": True,
     # Welcome text on the login screen
-    "welcome_sign": "Welcome to the Analysis Admin Panel",
+    "welcome_sign": "Welcome to the DataGaze Admin Panel",
     "show_ui_builder": True,
 }
 JAZZMIN_UI_TWEAKS = {
@@ -192,3 +206,5 @@ JAZZMIN_UI_TWEAKS = {
         "success": "btn-success",
     },
 }
+
+AUTH_USER_MODEL = 'connectionAPI.User'
