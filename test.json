@@ -1,0 +1,40 @@
+{
+    "database": 1, 
+    "query" : {   
+      "filter": [  
+        "!=",   
+        [
+          "fields", 
+          2, 
+          null 
+        ],
+        "ath", 
+        {
+            "case-sensitive": false 
+        } 
+      ],
+      "table": 2
+    }
+}
+
+
+
+2 : database id 
+
+3: query contains all the queries that need to be performed
+
+4: all the info about the filters that need to be added on the query
+
+5: the actual filter that needs to be performed(operation)
+
+7: specifies that we are working on a column
+
+8: id of the field
+
+9: DONT KNOW WHY???
+
+11: filter parameter so... model.objects.filter(field_name != "ath"
+
+13: if filter param is case-sensitive
+
+16: table id
