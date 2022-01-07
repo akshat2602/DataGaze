@@ -23,9 +23,9 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
    openapi.Info(
-      title="Analysis Platform API",
+      title="DataGaze API",
       default_version='v1',
-      description="API Explorer for Analysis Platform",
+      description="API Explorer for DataGaze",
       terms_of_service="https://www.google.com/policies/terms/",
       contact=openapi.Contact(email="akshatsharma2602@gmail.com"),
       license=openapi.License(name="BSD License"),
@@ -46,4 +46,7 @@ urlpatterns += [
     # Auth endpoints
     url(r'^auth/', include('djoser.urls')),
     url(r'^auth/', include('djoser.urls.jwt')),
+
+    # Custom endpoints
+    path('abc/', include('connectionAPI.urls')),
 ]
