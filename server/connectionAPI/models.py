@@ -20,7 +20,7 @@ class Database(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-class Tables(models.Model):
+class Table(models.Model):
     id = models.BigAutoField(null=False, blank=False, primary_key=True)
     name = models.CharField(max_length=50)
     fk_database = models.ForeignKey('Database', null=True, on_delete=models.CASCADE)
@@ -30,6 +30,6 @@ class Tables(models.Model):
 class Field(models.Model):
     id = models.BigAutoField(null=False, blank=False, primary_key=True)
     name = models.CharField(max_length=20)
-    fk_table = models.ForeignKey('Tables', null=True, on_delete=models.CASCADE)
+    fk_table = models.ForeignKey('Table', null=True, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
