@@ -1,10 +1,13 @@
-from os import stat
+from os import name, stat
 from django import db
+from django.db.models.fields.json import DataContains
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 import psycopg2
+
+from connectionAPI.models import Database, Field, Table
 
 
 from .serializers import DatabaseSerializer
@@ -28,19 +31,39 @@ class ConnectionViewSet(viewsets.ViewSet):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             try:
                 cur = conn.cursor()
-                cur.execute("SELECT * FROM information_schema.columns WHERE table_name = 'mock_data';")
+                cur.execute("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema';")
+                
                 tables = cur.fetchall()
-                print(tables)
-                cur.close()
-                conn.close()
+                table_response = []                
+                
+                print(table_response)
+                
             except psycopg2.Error as e:
                 print(e)
                 return Response(status=status.HTTP_400_BAD_REQUEST)
 
             # for i in range(len(tables)):
             #     tables
-            conn.close()
+
             db_serialized.save()
+            for table in tables:
+                ob = Table(name = str(table[0]), fk_database = Database.objects.get(pk =db_serialized.data['id']))
+                ob.save()
+                cur.execute(f"SELECT column_name, data_type, is_nullable FROM information_schema.columns WHERE table_name = '{str(table[0]).lower()}';")
+                fields = cur.fetchall()
+                final_fields = [[field[0], field[1]] for field in fields]
+                print(final_fields)
+                for field in final_fields:
+                    field_ob = Field(name = str(field[0]), data_type=str(field[1]), fk_table=ob)
+                    field_ob.save()
+
+                # for field in fields:
+                #     field_ob = Field(name = str[field[0]])
+                # print(fields)
+
+            cur.close()
+            conn.close()
+
             return Response(data=db_serialized.data, status=status.HTTP_200_OK)
 
         return Response(status=status.HTTP_400_BAD_REQUEST)

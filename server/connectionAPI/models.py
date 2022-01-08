@@ -30,6 +30,7 @@ class Table(models.Model):
 class Field(models.Model):
     id = models.BigAutoField(null=False, blank=False, primary_key=True)
     name = models.CharField(max_length=20)
+    data_type = models.CharField(max_length=20)
     fk_table = models.ForeignKey('Table', null=True, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
