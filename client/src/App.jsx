@@ -11,6 +11,8 @@ import Register from "./views/Auth/Register";
 import Databases from "./views/Dashboard/Databases";
 import Tables from "./views/Dashboard/Tables";
 import TableOverview from "./views/Analysis/TableOverview";
+import { SwitchThemeButton } from "./components/Util/SwitchTheme";
+
 function App() {
   return (
     <div className="App">
@@ -36,6 +38,8 @@ function App() {
           </Route>
         </Switch>
       </Router>
+      <SwitchThemeButton />
+
     </div>
   );
 }

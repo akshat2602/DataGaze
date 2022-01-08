@@ -8,7 +8,8 @@ import {
   InputLeftElement,
   FormControl,
   Center,
-  Image
+  Image,
+  useColorModeValue
 } from "@chakra-ui/react";
 import { BsFillPersonFill } from "react-icons/bs";
 import { FiKey } from "react-icons/fi";
@@ -17,6 +18,7 @@ function Login() {
     username: "",
     password: "",
   });
+  const bg = useColorModeValue("light.100", "dark.100");
   const onSubmit = () => {
     //TODO: Integrate with Redux
     const data = {
@@ -48,7 +50,7 @@ function Login() {
   return (
     <Box w="100%" h="100vh" verticalAlign="center">
       <Center h="100%">
-        <Box w="40%" backgroundColor="dark.100" p="3%" borderRadius="xl">
+        <Box w="40%" bg={bg} p="3%" borderRadius="xl">
           <Center>
             <Image src="Logo.svg" />
           </Center>

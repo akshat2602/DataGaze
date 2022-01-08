@@ -9,6 +9,7 @@ import {
   FormControl,
   Center,
   Image,
+  useColorModeValue
 } from "@chakra-ui/react";
 import { BsFillPersonFill } from "react-icons/bs";
 import { FiKey } from "react-icons/fi";
@@ -25,10 +26,12 @@ function Register() {
     };
     console.log(credentials);
   };
+  const bg = useColorModeValue("light.100", "dark.100");
+
   return (
     <Box w="100%" h="100vh" verticalAlign="center">
       <Center h="100%">
-        <Box w="40%" backgroundColor="dark.100" p="3%" borderRadius="xl">
+        <Box w="40%" bg={bg} p="3%" borderRadius="xl">
           <Center>
             <Image src="Logo.svg" />
           </Center>

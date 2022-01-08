@@ -10,6 +10,7 @@ import {
   AccordionButton,
   AccordionItem,
   Button,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { FaTable } from "react-icons/fa";
@@ -35,6 +36,8 @@ function Tables() {
   const onClickHide = (id) => {
     //Handle hiding and unhiding
   };
+  const bg = useColorModeValue("light.100", "dark.100");
+
   return (
     <Box h="100vh" pt="2%" px="2%">
       <Header />
@@ -78,12 +81,10 @@ function Tables() {
           <h2>
             <AccordionButton>
               <HStack>
-                <Box pb='3%' >
+                <Box pb="3%">
                   <AiFillEyeInvisible />
                 </Box>
-                <Text textAlign={"left"}>
-                  Hidden Tables
-                </Text>
+                <Text textAlign={"left"}>Hidden Tables</Text>
               </HStack>
               <AccordionIcon />
             </AccordionButton>
@@ -98,7 +99,7 @@ function Tables() {
                         cursor={"pointer"}
                         p="2% "
                         borderRadius={"xl"}
-                        backgroundColor={"dark.100"}
+                        bg={bg}
                         textAlign={"left"}
                         // onClick={() => onClick(element)}
                       >
