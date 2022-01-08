@@ -5,6 +5,7 @@ import {
   Text,
   HStack,
   Divider,
+  useColorModeValue
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { ImDatabase } from "react-icons/im";
@@ -18,6 +19,8 @@ function Databases() {
   const onClick = (id) => {
     //handle routing to specific database tables
   };
+  const bg = useColorModeValue("light.100", "dark.100");
+
   return (
     <Box h="100vh" pt="2%" px="2%">
       <Header />
@@ -32,7 +35,7 @@ function Databases() {
               cursor={"pointer"}
               p="2% "
               borderRadius={"xl"}
-              backgroundColor={"dark.100"}
+              bg={bg}
               textAlign={"left"}
               // onClick={() => onClick(element)}
             >
