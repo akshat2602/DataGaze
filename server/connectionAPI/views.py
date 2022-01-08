@@ -53,9 +53,13 @@ class ConnectionViewSet(viewsets.ViewSet):
                 fields = cur.fetchall()
                 final_fields = [[field[0], field[1]] for field in fields]
                 print(final_fields)
-                for field in final_fields:
-                    field_ob = Field(name = str(field[0]), data_type=str(field[1]), fk_table=ob)
-                    field_ob.save()
+                Field.objects.bulk_create([
+                    Field(name = str(field[0]), data_type=str(field[1]), fk_table=ob for field in final_fields),
+                ])
+
+                # for field in final_fields:
+                #     field_ob = Field(name = str(field[0]), data_type=str(field[1]), fk_table=ob)
+                #     field_ob.save()
 
                 # for field in fields:
                 #     field_ob = Field(name = str[field[0]])
