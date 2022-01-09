@@ -46,16 +46,22 @@ class ConnectionViewSet(viewsets.ViewSet):
             #     tables
 
             db_serialized.save()
-            for table in tables:
-                ob = Table(name = str(table[0]), fk_database = Database.objects.get(pk =db_serialized.data['id']))
-                ob.save()
-                cur.execute(f"SELECT column_name, data_type, is_nullable FROM information_schema.columns WHERE table_name = '{str(table[0]).lower()}';")
-                fields = cur.fetchall()
-                final_fields = [[field[0], field[1]] for field in fields]
-                print(final_fields)
-                Field.objects.bulk_create([
-                    Field(name = str(field[0]), data_type=str(field[1]), fk_table=ob for field in final_fields),
-                ])
+
+            try:
+                for table in tables:
+                    ob = Table(name = str(table[0]), fk_database = Database.objects.get(pk =db_serialized.data['id']))
+                    ob.save()
+                    
+                    cur.execute(f"SELECT column_name, data_type, is_nullable FROM information_schema.columns WHERE table_name = '{str(table[0]).lower()}';")
+                    fields = cur.fetchall()
+                    final_fields = [[field[0], field[1]] for field in fields]
+                    print(final_fields)
+                    Field.objects.bulk_create([
+                        Field(name = str(field[0]), data_type=str(field[1]), fk_table=ob) for field in final_fields
+                    ])
+                    
+            except:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
 
                 # for field in final_fields:
                 #     field_ob = Field(name = str(field[0]), data_type=str(field[1]), fk_table=ob)
