@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "djoser",
     "drf_yasg",
-    "connectionAPI"
+    "connectionAPI",
+    "queryAPI"
 ]
 
 

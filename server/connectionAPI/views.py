@@ -77,3 +77,5 @@ class ConnectionViewSet(viewsets.ViewSet):
             return Response(data=db_serialized.data, status=status.HTTP_200_OK)
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+

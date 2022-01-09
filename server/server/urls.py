@@ -48,5 +48,6 @@ urlpatterns += [
     url(r'^auth/', include('djoser.urls.jwt')),
 
     # Custom endpoints
-    path('abc/', include('connectionAPI.urls')),
+    path('connection/', include('connectionAPI.urls')),
+    path('query/', include('queryAPI.urls'))
 ]
