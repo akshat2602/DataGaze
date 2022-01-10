@@ -1,6 +1,3 @@
-from os import name, stat
-from django import db
-from django.db.models.fields.json import DataContains
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -42,9 +39,6 @@ class ConnectionViewSet(viewsets.ViewSet):
                 print(e)
                 return Response(status=status.HTTP_400_BAD_REQUEST)
 
-            # for i in range(len(tables)):
-            #     tables
-
             db_serialized.save()
 
             try:
@@ -63,13 +57,6 @@ class ConnectionViewSet(viewsets.ViewSet):
             except:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
 
-                # for field in final_fields:
-                #     field_ob = Field(name = str(field[0]), data_type=str(field[1]), fk_table=ob)
-                #     field_ob.save()
-
-                # for field in fields:
-                #     field_ob = Field(name = str[field[0]])
-                # print(fields)
 
             cur.close()
             conn.close()
