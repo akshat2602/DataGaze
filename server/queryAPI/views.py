@@ -43,35 +43,75 @@ class FilterViewSet(viewsets.ViewSet):
             source_table = Table.objects.get(id=serialized.validated_data['source_table'].id)
 
             filter_operations = serialized.validated_data['filter']['filter_operation']
+            
+            table_name = source_table.name
+            query_string = f"SELECT * FROM {table_name} WHERE "
 
-            for filter in filter_operations:
-
+            for filter in filter_operations:                
+                
                 field = Field.objects.get(id=filter['field']['field_id'].id)
                 field_name = field.name
-                table_name = source_table.name
 
-                if filter['field']['source_field'] == None and field.fk_table == source_table:
+                if filter['operation'] in ["ends-with", "contains", "does-not-contain", "starts-with", "=", "!="]:
+                    
+                    if filter['operation'] in ["ends-with", "contains", "does-not-contain", "starts-with"]:
+                        op = filter['op_variable'][0]
 
-                    if filter['operation'] == "ends-with":
-                        
-                        if field.data_type != "character varying":
-                            op = float(filter['op_variable'][0])
-                        
-                        else:
-                            op = filter['op_variable'][0]
+                    if 'type' in serialized.validated_data['filter']:
 
-                        if 'response_data' not in locals():
+                        if filter['field']['source_field'] == None:
                             
-                            cur.execute(f"SELECT * FROM {table_name} WHERE {field_name} LIKE '%{op}'")
-                            
-                            response_data = cur.fetchall()
+                            if field.fk_table != source_table:
+
+                                return Response(data={"Message": f"field of id {field.id} does not belong to the table of id {source_table.id}"}, 
+                                                    status=status.HTTP_400_BAD_REQUEST)
+                            else:                                
+
+                                if  (query_string.split(" ")[-2] == 'WHERE'):
+                                    
+                                    if filter['operation'] == "ends-with":
+                                        query_string+= f"{field_name} LIKE '%{op}' {serialized.validated_data['filter']['type']}"
+                                    
+                                    elif filter['operation'] == "contains":
+                                        query_string+= f"{field_name} LIKE '%{op}%' {serialized.validated_data['filter']['type']}"
+                                    
+                                    elif filter['operation'] == "does-not-contain":
+                                        query_string+= f"{field_name} NOT LIKE '%{op}%' {serialized.validated_data['filter']['type']}"
+                                    
+                                    elif filter['operation'] == "starts-with":
+                                        query_string+= f"{field_name} LIKE '{op}%' {serialized.validated_data['filter']['type']}"
+
+                                else:
+                                    if filter['operation'] == "ends-with":
+                                        query_string+= f" {serialized.validated_data['filter']['type']} {field_name} LIKE '%{op}'"
+                                    
+                                    elif filter['operation'] == "contains":
+                                        query_string+= f" {serialized.validated_data['filter']['type']} {field_name} LIKE '%{op}%'"
+                                    
+                                    elif filter['operation'] == "does-not-contain":
+                                        query_string+= f" {serialized.validated_data['filter']['type']} {field_name} NOT LIKE '%{op}%'"
+                                    
+                                    elif filter['operation'] == "starts-with":
+                                        query_string+= f" {serialized.validated_data['filter']['type']} {field_name} LIKE '{op}%'"
+
+                                    
+
+                    else:
+                        if filter['operation'] == "ends-with":
+                            query_string+= f"{field_name} LIKE '%{op}'"
                         
-                        else:
+                        elif filter['operation'] == "contains":
+                            query_string+= f"{field_name} LIKE '%{op}%'"
+                        
+                        elif filter['operation'] == "does-not-contain":
+                            query_string+= f"{field_name} NOT LIKE '%{op}%'"
+                        
+                        elif filter['operation'] == "starts-with":
+                            query_string+= f"{field_name} LIKE '{op}%'"
 
-                            cur.execute(f"SELECT * FROM {response_data} WHERE {field_name} LIKE '%{op}'")
+            print(query_string)
 
-                            response_data = cur.fetchall()
 
-            return Response(data={"Message": response_data}, status=status.HTTP_200_OK)
+            return Response(data={"Message": query_string}, status=status.HTTP_200_OK)
         
         return Response(data=serialized.errors, status=status.HTTP_400_BAD_REQUEST)

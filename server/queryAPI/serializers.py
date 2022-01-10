@@ -23,7 +23,7 @@ class FilterFunctionSerializer(serializers.Serializer):
     operation = serializers.CharField(max_length = 20)
     field = FieldSerializer(many=False)
     op_variable = serializers.ListField(
-        child = serializers.CharField(max_length = 100, required=False)
+        child = serializers.CharField(max_length = 100), required =False
     )
 
     
@@ -41,6 +41,14 @@ class FilterFunctionSerializer(serializers.Serializer):
 
         global OPERATION_CHOICES
 
+        try:
+            if data['op_variable'] == 'is-empty' or data['operation'] == 'is-not-empty': 
+                if len(data['op_variable']) !=0:
+                    raise ValidationError("op_variable not required")
+        
+        except KeyError:
+            pass
+
         if(data['operation'] == "starts-with" or data['operation'] == "contains" 
             or data['operation'] == 'does-not-contain' or data['operation'] == 'ends-with'):
             
@@ -53,10 +61,10 @@ class FilterFunctionSerializer(serializers.Serializer):
             if len(data['op_variable']) < 1:
                 raise ValidationError("atleast 1 op_variable needed for this operation")
         
-        elif(data['operation'] == 'is-empty' or data['operation'] == 'is-not-empty'):
+        # elif(data['operation'] == 'is-empty' or data['operation'] == 'is-not-empty'):
 
-            if len(data['op_variable']) !=0:
-                raise ValidationError("op_variable must be empty")
+        #     if len(data['op_variable']) !=0:
+        #         raise ValidationError("op_variable must be empty")
 
         return super().validate(data)
 
@@ -69,13 +77,21 @@ class FilterSerializer(serializers.Serializer):
     def validate_type(self, type):
         
         TYPE_CHOICES = [
-            "and"
+            "and",
+            "or"
         ]
         
         if type not in TYPE_CHOICES:
             raise ValidationError("invalid type of filter")
         
         return type
+    
+    def validate(self, data):
+
+        if len(data['filter_operation']) > 1 and 'type' not in data: 
+            raise ValidationError("type must be specified for more than one filters")
+        
+        return super().validate(data)
 
 
 class QuerySerializer(serializers.Serializer):
