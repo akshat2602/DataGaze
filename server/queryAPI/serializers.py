@@ -7,16 +7,8 @@ class FieldSerializer(serializers.Serializer):
     field_id = serializers.PrimaryKeyRelatedField(queryset = Field.objects.all(), many=False)
     source_field = serializers.PrimaryKeyRelatedField(queryset = Field.objects.all(), many=False, allow_null=True)
 
-class FilterFunctionSerializer(serializers.Serializer):
-    operation = serializers.CharField(max_length = 20)
-    field = FieldSerializer(many=False)
-    op_variable = serializers.ListField(
-        child = serializers.CharField(max_length = 100)
-    )
 
-    def validate_operation(self, operation):
-
-        OPERATION_CHOICES = [
+OPERATION_CHOICES = [
                     "starts-with",
                     "contains",
                     "=",
@@ -26,11 +18,48 @@ class FilterFunctionSerializer(serializers.Serializer):
                     "not-empty",
                     "ends-with"
                 ]
+
+class FilterFunctionSerializer(serializers.Serializer):
+    operation = serializers.CharField(max_length = 20)
+    field = FieldSerializer(many=False)
+    op_variable = serializers.ListField(
+        child = serializers.CharField(max_length = 100, required=False)
+    )
+
+    
+
+    def validate_operation(self, operation):
+
+        global OPERATION_CHOICES
         
         if operation not in OPERATION_CHOICES:
             raise ValidationError("invalid filter operation")
         
         return operation
+    
+    def validate(self, data):
+
+        global OPERATION_CHOICES
+
+        if(data['operation'] == "starts-with" or data['operation'] == "contains" 
+            or data['operation'] == 'does-not-contain' or data['operation'] == 'ends-with'):
+            
+            
+            if len(data['op_variable']) != 1:
+                raise ValidationError("only 1 op_variable needed for this operation")
+
+        elif(data['operation'] == "=" or data['operation'] == '!='):
+
+            if len(data['op_variable']) < 1:
+                raise ValidationError("atleast 1 op_variable needed for this operation")
+        
+        elif(data['operation'] == 'is-empty' or data['operation'] == 'is-not-empty'):
+
+            if len(data['op_variable']) !=0:
+                raise ValidationError("op_variable must be empty")
+
+        return super().validate(data)
+
 
 class FilterSerializer(serializers.Serializer):
     type = serializers.CharField(max_length=20, required=False)
