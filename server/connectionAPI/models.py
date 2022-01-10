@@ -20,6 +20,9 @@ class Database(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta: 
+        unique_together = ('host', 'name', 'username')
+
 class Table(models.Model):
     id = models.BigAutoField(null=False, blank=False, primary_key=True)
     name = models.CharField(max_length=50)
