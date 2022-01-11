@@ -2,7 +2,7 @@ version: "3"
 
 services:
   server:
-    container_name: server
+    container_name: datagaze-server
     build:
       context: ./server
     stdin_open: true
@@ -27,7 +27,7 @@ services:
       - db
 
   client:
-    container_name: client
+    container_name: datagaze-client
     build:
       context: ./client
     volumes:
@@ -42,7 +42,7 @@ services:
              npm start"
 
   db:
-    container_name: db
+    container_name: datagaze-db
     image: postgres
     environment:
       - POSTGRES_DB=db
