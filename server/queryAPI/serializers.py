@@ -112,6 +112,6 @@ class QuerySerializer(serializers.Serializer):
     source_table = serializers.PrimaryKeyRelatedField(
         queryset=Table.objects.all(), many=False
     )
-    filter = FilterSerializer(many=False)
+    filter = FilterSerializer(many=False, required=False)
     order = OrderSerializer(many=True, required=False)
     limit = serializers.IntegerField(required=False)

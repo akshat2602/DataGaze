@@ -166,10 +166,31 @@ class FilterViewSet(viewsets.ViewSet):
                             elif filter["operation"] == "starts-with":
                                 query_string += f"{field_name} LIKE '{op}%'"
 
-            if "limit" in serialized.validated_data:
-                query_string += " LIMIT " + serialized.validated_data["limit"]
-            query_string += ";"
+            if "order" in serialized.validated_data:
+                query_string += " ORDER BY "
 
+                for order in serialized.validated_data["order"]:
+                    field = Field.objects.get(id=order["field"]["field_id"].id)
+                    field_name = field.name
+
+                    if order["field"]["source_field"] != None:
+                        if field.fk_table != source_table:
+                            return Response(
+                                data={
+                                    "Message": f"Field of id {field.id} does not belong to the table of id {source_table.id}"
+                                },
+                                status=status.HTTP_400_BAD_REQUEST,
+                            )
+                    else:
+                        type = order["type"]
+                        query_string += f"{field_name} {type},"
+
+            query_string = query_string[:-1]
+            query_string += " "
+
+            if "limit" in serialized.validated_data:
+                query_string += "LIMIT " + str(serialized.validated_data["limit"])
+            query_string += ";"
             try:
                 db = Database.objects.get(id=1)
                 conn = psycopg2.connect(
