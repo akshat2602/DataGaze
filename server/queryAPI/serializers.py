@@ -1,6 +1,8 @@
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
+
 from connectionAPI.models import Field, Table
+from .validate import validate_field
 
 class FieldSerializer(serializers.Serializer):
     field = serializers.CharField(max_length = 20)
@@ -26,14 +28,11 @@ class FilterFunctionSerializer(serializers.Serializer):
         child = serializers.CharField(max_length = 100), required =False
     )
 
-    
-
     def validate_operation(self, operation):
 
         global OPERATION_CHOICES
-        
-        if operation not in OPERATION_CHOICES:
-            raise ValidationError("invalid filter operation")
+
+        validate_field(operation, OPERATION_CHOICES)
         
         return operation
     
@@ -72,7 +71,6 @@ class FilterFunctionSerializer(serializers.Serializer):
 class FilterSerializer(serializers.Serializer):
     type = serializers.CharField(max_length=20, required=False)
     filter_operation = FilterFunctionSerializer(many=True)
-
     
     def validate_type(self, type):
         
@@ -80,9 +78,7 @@ class FilterSerializer(serializers.Serializer):
             "and",
             "or"
         ]
-        
-        if type not in TYPE_CHOICES:
-            raise ValidationError("invalid type of filter")
+        validate_field(type, TYPE_CHOICES)
         
         return type
     
@@ -94,6 +90,23 @@ class FilterSerializer(serializers.Serializer):
         return super().validate(data)
 
 
+class OrderSerializer(serializers.Serializer):
+    type = serializers.CharField(max_length=10, required=True)
+    field = FieldSerializer(many=False)
+
+    def validate_type(self, type):
+
+        TYPE_CHOICES = [
+            "asc",
+            "desc"
+        ]
+        validate_field(type, TYPE_CHOICES)
+
+        return type
+
+
 class QuerySerializer(serializers.Serializer):
     source_table = serializers.PrimaryKeyRelatedField(queryset = Table.objects.all(), many=False)
     filter = FilterSerializer(many=False)
+    order = OrderSerializer(many=True, required=False)
+    limit = serializers.IntegerField(required=False, default=10)
