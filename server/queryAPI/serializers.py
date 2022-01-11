@@ -1,6 +1,6 @@
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
-from connectionAPI.models import Database, Field, Table
+from connectionAPI.models import Field, Table
 
 class FieldSerializer(serializers.Serializer):
     field = serializers.CharField(max_length = 20)
