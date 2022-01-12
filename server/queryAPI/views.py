@@ -42,10 +42,16 @@ class FilterViewSet(viewsets.ViewSet):
                         "contains",
                         "does-not-contain",
                         "starts-with",
-                        "=",
-                        "!=",
                         "is-empty",
                         "is-not-empty",
+                        "greater-than",
+                        ">",
+                        "<",
+                        ">=",
+                        "<=",
+                        "between",
+                        "=",
+                        "!=",
                     ]:
 
                         if filter["operation"] in [
@@ -53,16 +59,34 @@ class FilterViewSet(viewsets.ViewSet):
                             "contains",
                             "does-not-contain",
                             "starts-with",
+                            ">",
+                            "<",
+                            ">=",
+                            "<=",
                         ]:
-                            op = filter["op_variable"][0]
+                            if filter["is_numeric"]:
+                                op = int(filter["op_variable"][0])
+                            else:
+                                op = filter["op_variable"][0]
 
-                        elif filter["operation"] in ["=", "!="]:
-                            op = tuple(i for i in filter["op_variable"])
+                        elif filter["operation"] in ["=", "!=", "between"]:
+
+                            if filter["is_numeric"]:
+                                op = tuple(float(i) for i in filter["op_variable"])
+                                if len(op) == 1:
+                                    op = f"({op[0]})"
+                            else:
+                                op = tuple(i for i in filter["op_variable"])
+                                if len(op) == 1:
+                                    op = f"('{op[0]}')"
 
                         elif filter["operation"] in ["is-empty", "is-not-empty"]:
                             op = []
 
-                        if "type" in serialized.validated_data["filter"]:
+                        if (
+                            "type" in serialized.validated_data["filter"]
+                            and len(filter["operation"]) > 1
+                        ):
 
                             if filter["field"]["source_field"] == None:
 
@@ -84,6 +108,21 @@ class FilterViewSet(viewsets.ViewSet):
 
                                         if filter["operation"] == "is-empty":
                                             query_string += f"{field_name} IS NULL {serialized.validated_data['filter']['type']}"
+
+                                        elif filter["operation"] == ">":
+                                            query_string += f"{field_name} > {op} {serialized.validated_data['filter']['type']}"
+
+                                        elif filter["operation"] == "<":
+                                            query_string += f"{field_name} < {op} {serialized.validated_data['filter']['type']}"
+
+                                        elif filter["operation"] == "<=":
+                                            query_string += f"{field_name} <= {op} {serialized.validated_data['filter']['type']}"
+
+                                        elif filter["operation"] == ">=":
+                                            query_string += f"{field_name} >= {op} {serialized.validated_data['filter']['type']}"
+
+                                        elif filter["operation"] == "between":
+                                            query_string += f"{field_name} BETWEEN {op[0]} AND {op[1]} {serialized.validated_data['filter']['type']}"
 
                                         elif filter["operation"] == "is-not-empty":
                                             query_string += f"{field_name} IS NOT NULL {serialized.validated_data['filter']['type']}"
@@ -120,6 +159,21 @@ class FilterViewSet(viewsets.ViewSet):
                                         if filter["operation"] == "is-empty":
                                             query_string += f" {serialized.validated_data['filter']['type']} {field_name} IS NULL"
 
+                                        elif filter["operation"] == ">":
+                                            query_string += f" {serialized.validated_data['filter']['type']} {field_name} > {op}"
+
+                                        elif filter["operation"] == "<":
+                                            query_string += f" {serialized.validated_data['filter']['type']} {field_name} < {op}"
+
+                                        elif filter["operation"] == "<=":
+                                            query_string += f" {serialized.validated_data['filter']['type']} {field_name} <= {op}"
+
+                                        elif filter["operation"] == "=<":
+                                            query_string += f" {serialized.validated_data['filter']['type']} {field_name} =< {op}"
+
+                                        elif filter["operation"] == "between":
+                                            query_string += f" {serialized.validated_data['filter']['type']} {field_name} BETWEEN {op[0]} AND {op[1]}"
+
                                         elif filter["operation"] == "is-not-empty":
                                             query_string += f" {serialized.validated_data['filter']['type']} {field_name} IS NOT NULL"
 
@@ -145,6 +199,23 @@ class FilterViewSet(viewsets.ViewSet):
                             if filter["operation"] == "is-empty":
                                 query_string += f"{field_name} IS NULL"
 
+                            elif filter["operation"] == ">":
+                                query_string += f"{field_name} > {op}"
+
+                            elif filter["operation"] == "<":
+                                query_string += f"{field_name} < {op}"
+
+                            elif filter["operation"] == "<=":
+                                query_string += f"{field_name} <= {op}"
+
+                            elif filter["operation"] == ">=":
+                                query_string += f"{field_name} >= {op}"
+
+                            elif filter["operation"] == "between":
+                                query_string += (
+                                    f"{field_name} BETWEEN {op[0]} AND {op[1]}"
+                                )
+
                             elif filter["operation"] == "is-not-empty":
                                 query_string += f"{field_name} IS NOT NULL"
 
@@ -166,6 +237,7 @@ class FilterViewSet(viewsets.ViewSet):
                             elif filter["operation"] == "starts-with":
                                 query_string += f"{field_name} LIKE '{op}%'"
 
+            print(query_string)
             if "order" in serialized.validated_data:
                 query_string += " ORDER BY "
 

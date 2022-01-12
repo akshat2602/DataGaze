@@ -18,18 +18,24 @@ class FieldSerializer(serializers.Serializer):
 OPERATION_CHOICES = [
     "starts-with",
     "contains",
-    "=",
-    "!=",
     "does-not-contain",
     "is-empty",
     "not-empty",
     "ends-with",
+    "!=",
+    "=",
+    ">=",
+    "<=",
+    ">",
+    "<",
+    "between",
 ]
 
 
 class FilterFunctionSerializer(serializers.Serializer):
     operation = serializers.CharField(max_length=20)
     field = FieldSerializer(many=False)
+    is_numeric = serializers.BooleanField(default=False)
     op_variable = serializers.ListField(
         child=serializers.CharField(max_length=100), required=False
     )
@@ -46,23 +52,42 @@ class FilterFunctionSerializer(serializers.Serializer):
 
         global OPERATION_CHOICES
 
-        try:
-            if data["op_variable"] == "is-empty" or data["operation"] == "is-not-empty":
+        if "op_variable" in data:
+            if data["operation"] == "is-empty" or data["operation"] == "is-not-empty":
                 if len(data["op_variable"]) != 0:
                     raise ValidationError("op_variable not required")
 
-        except KeyError:
-            pass
+            if data["is_numeric"]:
+                try:
+                    check = [float(item) for item in data["op_variable"]]
+                except:
+                    raise ValidationError("op_variable must contain only numeric")
+
+        if data["operation"] in [">", "<", ">=", "<=", "between"]:
+
+            if not data["is_numeric"]:
+                raise ValidationError(
+                    "is_numeric must be true for this filter operation"
+                )
 
         if (
             data["operation"] == "starts-with"
             or data["operation"] == "contains"
             or data["operation"] == "does-not-contain"
             or data["operation"] == "ends-with"
+            or data["operation"] == ">"
+            or data["operation"] == "<"
+            or data["operation"] == ">="
+            or data["operation"] == "<="
         ):
 
             if len(data["op_variable"]) != 1:
                 raise ValidationError("only 1 op_variable needed for this operation")
+
+        if data["operation"] == "between":
+
+            if len(data["op_variable"]) != 2:
+                raise ValidationError("exactly 2 op_variable needed for this operation")
 
         elif data["operation"] == "=" or data["operation"] == "!=":
 
