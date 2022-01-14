@@ -1,3 +1,4 @@
+from email.policy import default
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
@@ -133,10 +134,41 @@ class OrderSerializer(serializers.Serializer):
         return type
 
 
+class JoinSerializer(serializers.Serializer):
+    strategy = serializers.CharField(max_length=25, default="inner_join")
+    lhs = FieldSerializer(many=False)
+    rhs = FieldSerializer(many=False)
+    source_table = serializers.PrimaryKeyRelatedField(
+        queryset=Table.objects.all(), many=False
+    )
+
+
 class QuerySerializer(serializers.Serializer):
     source_table = serializers.PrimaryKeyRelatedField(
         queryset=Table.objects.all(), many=False
     )
     filter = FilterSerializer(many=False, required=False)
     order = OrderSerializer(many=True, required=False)
+    join = JoinSerializer(many=True, required=False)
     limit = serializers.IntegerField(required=False)
+
+    def validate(self, data):
+        join = data['join']
+        source_table = data['source_table']
+        for single_join in join:
+            lhs = single_join['lhs']['field_id']
+            rhs = single_join['rhs']['field_id']
+            rhs_table = single_join['source_table']
+            
+            try:
+                Field.objects.get(id=lhs.id, fk_table=source_table.id)
+            except Field.DoesNotExist:
+                raise ValidationError("Wrong field id provided for the source table")
+
+            try: 
+                Field.objects.get(id=rhs.id, fk_table=rhs_table.id)
+            except Field.DoesNotExist:
+                raise ValidationError("Wrong field id provided for the joining table")
+
+
+        return super().validate(data)

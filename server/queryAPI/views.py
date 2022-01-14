@@ -237,7 +237,6 @@ class FilterViewSet(viewsets.ViewSet):
                             elif filter["operation"] == "starts-with":
                                 query_string += f"{field_name} LIKE '{op}%'"
 
-            print(query_string)
             if "order" in serialized.validated_data:
                 query_string += " ORDER BY "
 
@@ -256,6 +255,9 @@ class FilterViewSet(viewsets.ViewSet):
                     else:
                         type = order["type"]
                         query_string += f"{field_name} {type},"
+
+            if "join" in serialized.validated_data:
+                pass
 
             query_string = query_string[:-1]
             query_string += " "
@@ -287,7 +289,10 @@ class FilterViewSet(viewsets.ViewSet):
                 cur.execute(query_string)
                 table_data = cur.fetchall()
             except:
-                return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(
+                    data={"Error": "Couldn't fetch data!"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
 
             return Response(
                 data={"Query": query_string, "Response": table_data},
