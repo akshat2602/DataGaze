@@ -165,21 +165,26 @@ class QuerySerializer(serializers.Serializer):
     limit = serializers.IntegerField(required=False)
 
     def validate(self, data):
-        join = data["join"]
-        source_table = data["source_table"]
-        for single_join in join:
-            lhs = single_join["lhs"]["field_id"]
-            rhs = single_join["rhs"]["field_id"]
-            rhs_table = single_join["source_table"]
+        if "join" in data:
+            join = data["join"]
+            source_table = data["source_table"]
+            for single_join in join:
+                lhs = single_join["lhs"]["field_id"]
+                rhs = single_join["rhs"]["field_id"]
+                rhs_table = single_join["source_table"]
 
-            try:
-                Field.objects.get(id=lhs.id, fk_table=source_table.id)
-            except Field.DoesNotExist:
-                raise ValidationError("Wrong field id provided for the source table")
+                try:
+                    Field.objects.get(id=lhs.id, fk_table=source_table.id)
+                except Field.DoesNotExist:
+                    raise ValidationError(
+                        "Wrong field id provided for the source table"
+                    )
 
-            try:
-                Field.objects.get(id=rhs.id, fk_table=rhs_table.id)
-            except Field.DoesNotExist:
-                raise ValidationError("Wrong field id provided for the joining table")
+                try:
+                    Field.objects.get(id=rhs.id, fk_table=rhs_table.id)
+                except Field.DoesNotExist:
+                    raise ValidationError(
+                        "Wrong field id provided for the joining table"
+                    )
 
         return super().validate(data)

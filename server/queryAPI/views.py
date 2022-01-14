@@ -26,6 +26,27 @@ class FilterViewSet(viewsets.ViewSet):
             table_name = source_table.name
             query_string = f"SELECT * FROM {table_name}"
 
+            if "join" in serialized.validated_data:
+                for join in serialized.validated_data["join"]:
+                    if join["strategy"] == "inner_join":
+                        query_string += " INNER JOIN "
+                    elif join["strategy"] == "left_outer_join":
+                        query_string += " LEFT JOIN "
+                    elif join["strategy"] == "right_outer_join":
+                        query_string += " RIGHT JOIN "
+                    elif join["strategy"] == "full_outer_join":
+                        query_string += " FULL JOIN "
+                    print(join)
+                    rhs_table_name = Table.objects.get(id=join["source_table"].id).name
+                    lhs_field_name = Field.objects.get(
+                        id=join["lhs"]["field_id"].id
+                    ).name
+                    rhs_field_name = Field.objects.get(
+                        id=join["rhs"]["field_id"].id
+                    ).name
+
+                    query_string += f"{rhs_table_name} ON {table_name}.{lhs_field_name}={rhs_table_name}.{rhs_field_name}"
+
             if "filter" in serialized.validated_data:
                 filter_operations = serialized.validated_data["filter"][
                     "filter_operation"
@@ -254,17 +275,16 @@ class FilterViewSet(viewsets.ViewSet):
                             )
                     else:
                         type = order["type"]
-                        query_string += f"{field_name} {type},"
+                        query_string += f"{table_name}.{field_name} {type},"
 
-            if "join" in serialized.validated_data:
-                pass
-
-            query_string = query_string[:-1]
-            query_string += " "
+            if "order" in serialized.validated_data:
+                query_string = query_string[:-1]
 
             if "limit" in serialized.validated_data:
-                query_string += "LIMIT " + str(serialized.validated_data["limit"])
+                query_string += " LIMIT " + str(serialized.validated_data["limit"])
             query_string += ";"
+            print(query_string)
+
             try:
                 db = Database.objects.get(id=1)
                 conn = psycopg2.connect(
