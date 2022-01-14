@@ -142,6 +142,18 @@ class JoinSerializer(serializers.Serializer):
         queryset=Table.objects.all(), many=False
     )
 
+    def validate_strategy(self, strategy):
+        TYPE_CHOICES = [
+            "inner_join",
+            "left_outer_join",
+            "right_outer_join",
+            "full_outer_join",
+        ]
+
+        validate_field(strategy, TYPE_CHOICES)
+
+        return strategy
+
 
 class QuerySerializer(serializers.Serializer):
     source_table = serializers.PrimaryKeyRelatedField(
@@ -153,22 +165,21 @@ class QuerySerializer(serializers.Serializer):
     limit = serializers.IntegerField(required=False)
 
     def validate(self, data):
-        join = data['join']
-        source_table = data['source_table']
+        join = data["join"]
+        source_table = data["source_table"]
         for single_join in join:
-            lhs = single_join['lhs']['field_id']
-            rhs = single_join['rhs']['field_id']
-            rhs_table = single_join['source_table']
-            
+            lhs = single_join["lhs"]["field_id"]
+            rhs = single_join["rhs"]["field_id"]
+            rhs_table = single_join["source_table"]
+
             try:
                 Field.objects.get(id=lhs.id, fk_table=source_table.id)
             except Field.DoesNotExist:
                 raise ValidationError("Wrong field id provided for the source table")
 
-            try: 
+            try:
                 Field.objects.get(id=rhs.id, fk_table=rhs_table.id)
             except Field.DoesNotExist:
                 raise ValidationError("Wrong field id provided for the joining table")
-
 
         return super().validate(data)
