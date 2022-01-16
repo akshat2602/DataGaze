@@ -45,8 +45,6 @@ def filter_query(
                     else:
                         op = filter["op_variable"][0]
 
-                    print(f"=============={op}===============")
-
                 elif filter["operation"] in ["=", "!=", "between"]:
 
                     if filter["is_numeric"]:
@@ -82,9 +80,7 @@ def filter_query(
                                 and query_string.split(" ")[-1]
                                 != serialized.validated_data["filter"]["type_"]
                             ):
-                                print(
-                                    f'================={filter["operation"]}================'
-                                )
+
                                 if filter["operation"] == "is-empty":
                                     query_string += f"{table_name}.{field_name} IS NULL {serialized.validated_data['filter']['type_']}"
 
@@ -131,9 +127,7 @@ def filter_query(
                                     query_string.split(" ")[-1]
                                     == serialized.validated_data["filter"]["type_"]
                                 ):
-                                    print(
-                                        f'================={filter["operation"]}================'
-                                    )
+
                                     query_string = query_string.rsplit(" ", 1)[0]
 
                                 if filter["operation"] == "is-empty":
