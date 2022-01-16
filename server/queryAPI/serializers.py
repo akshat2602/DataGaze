@@ -104,34 +104,34 @@ class FilterFunctionSerializer(serializers.Serializer):
 
 
 class FilterSerializer(serializers.Serializer):
-    type = serializers.CharField(max_length=20, required=False)
+    type_ = serializers.CharField(max_length=20, required=False)
     filter_operation = FilterFunctionSerializer(many=True)
 
-    def validate_type(self, type):
+    def validate_type_(self, type_):
 
-        TYPE_CHOICES = ["and", "or"]
-        validate_field(type, TYPE_CHOICES)
+        type__CHOICES = ["and", "or"]
+        validate_field(type_, type__CHOICES)
 
-        return type
+        return type_
 
     def validate(self, data):
 
-        if len(data["filter_operation"]) > 1 and "type" not in data:
-            raise ValidationError("type must be specified for more than one filters")
+        if len(data["filter_operation"]) > 1 and "type_" not in data:
+            raise ValidationError("type_ must be specified for more than one filters")
 
         return super().validate(data)
 
 
 class OrderSerializer(serializers.Serializer):
-    type = serializers.CharField(max_length=10, required=True)
+    type_ = serializers.CharField(max_length=10, required=True)
     field = FieldSerializer(many=False)
 
-    def validate_type(self, type):
+    def validate_type_(self, type_):
 
-        TYPE_CHOICES = ["asc", "desc"]
-        validate_field(type, TYPE_CHOICES)
+        type__CHOICES = ["asc", "desc"]
+        validate_field(type_, type__CHOICES)
 
-        return type
+        return type_
 
 
 class JoinSerializer(serializers.Serializer):
@@ -143,14 +143,14 @@ class JoinSerializer(serializers.Serializer):
     )
 
     def validate_strategy(self, strategy):
-        TYPE_CHOICES = [
+        type__CHOICES = [
             "inner_join",
             "left_outer_join",
             "right_outer_join",
             "full_outer_join",
         ]
 
-        validate_field(strategy, TYPE_CHOICES)
+        validate_field(strategy, type__CHOICES)
 
         return strategy
 

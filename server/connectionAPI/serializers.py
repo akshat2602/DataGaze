@@ -8,3 +8,5 @@ class DatabaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Database
         fields = "__all__"
+
+    
